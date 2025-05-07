@@ -3,7 +3,7 @@
 		<h1>Hero Section</h1>
 		<h3>Strapline.</h3>
 		<h4 class="mt-l">Additional info.</h4>
-		<h4 class="mb-s">what is thie CTA</h4>
+		<h4 class="mb-s">what is the CTA</h4>
 		<button>Sign Up</button>
 	</div>
 </section>
