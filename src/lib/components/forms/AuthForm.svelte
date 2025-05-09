@@ -12,7 +12,11 @@
 
 <div class="default-margin auth-container">
 	<h1 class="mb-l">{isRegistration ? 'Register' : 'Login'}</h1>
-	<form class="auth-form" method="POST">
+	<form
+		class="auth-form"
+		method="POST"
+		action={isRegistration ? '' : '/login/?/SignInWithPassword'}
+	>
 		{#if form && form.errors?.length}
 			{#each form.errors as error}
 				<div class="auth-error"><p>{error}</p></div>
@@ -32,6 +36,9 @@
 			/>
 		{/if}
 		<Button type="submit">{isRegistration ? 'Register' : 'Login'}</Button>
+	</form>
+	<form method="POST" action={isRegistration ? '/login/?/googleLogin' : '?/googleLogin'}>
+		<Button type="submit">Log in using Google</Button>
 		{#if isRegistration}
 			<p class="auth-hint mt-s">Already have an account? <a href="/login">Login</a></p>
 		{:else}
