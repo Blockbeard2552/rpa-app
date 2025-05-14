@@ -1,4 +1,5 @@
 import { goto } from '$app/navigation';
+import type { Database } from '$components/types/database.types';
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
 import { getContext, setContext } from 'svelte';
 
@@ -8,12 +9,40 @@ interface UserStateProps {
     supabase: SupabaseClient | null;
     user: User | null;
 }
+
+interface Order {
+    created_at: string
+    delivery_charge: number | null
+    id: number
+    model: string
+    options: string | null
+    order_closed_on: string | null
+    sales_tax: number | null
+    started_processing_on: string | null
+    sub_total: number
+    total: number
+    user_id: string
+}
 export class UserState {
     session = $state<Session | null>(null);
-    supabase = $state<SupabaseClient | null>(null);
+    supabase = $state<SupabaseClient<Database> | null>(null);
     user = $state<User | null>(null);
+    allOrders = $state<Order[]>([]);
     
-    
+  async fetchUserData() {
+        if (!this.user || !this.supabase) {
+            return;
+        }
+        const {data, error} = await this.supabase.from('orders').select('*').eq("user_id", this.user.id);
+        if (error) {
+            console.log("Error fetching all orders for user");
+            console.log(error);
+            return;
+        }
+        if (data) {
+            this.allOrders = data;
+        }
+    }
     constructor(data: UserStateProps) {
         this.updateState(data);
     }
@@ -21,6 +50,7 @@ export class UserState {
         this.session = data.session;
         this.supabase = data.supabase;
         this.user = data.user;
+        this.fetchUserData();
     }
     async logout() {
         await this.supabase?.auth.signOut();
