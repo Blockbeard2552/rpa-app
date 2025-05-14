@@ -28,21 +28,33 @@ export class UserState {
     supabase = $state<SupabaseClient<Database> | null>(null);
     user = $state<User | null>(null);
     allOrders = $state<Order[]>([]);
+    userName =$state<string | null>(null);
     
   async fetchUserData() {
         if (!this.user || !this.supabase) {
             return;
         }
-        const {data, error} = await this.supabase.from('orders').select('*').eq("user_id", this.user.id);
-        if (error) {
-            console.log("Error fetching all orders for user");
-            console.log(error);
-            return;
+
+        const userId = this.user.id;
+
+       const [ordersResponse, userNamesResponse] = await Promise.all([
+            this.supabase
+            .from('orders')
+            .select('*')
+            .eq("user_id", userId),
+            this.supabase.from("user_names").select("name").eq("user_id", userId).single(),
+        ])
+
+            if (ordersResponse.error || !ordersResponse.data || userNamesResponse.error || !userNamesResponse.data) {
+                console.log("Error fetching all orders for user");
+                console.log({ordersError: ordersResponse.error, userNamesError: userNamesResponse.error});
+                return;
+            }
+
+            this.allOrders = ordersResponse.data;
+            this.userName = userNamesResponse.data.name;
         }
-        if (data) {
-            this.allOrders = data;
-        }
-    }
+    
     constructor(data: UserStateProps) {
         this.updateState(data);
     }
