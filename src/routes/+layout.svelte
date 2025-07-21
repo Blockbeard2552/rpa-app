@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Header from '$components/layout/Header.svelte';
+	import Footer from '$components/layout/Footer.svelte';
 	import './../app.css';
 	import { invalidate } from '$app/navigation';
 	import { setUserState } from '$lib/state/user-state.svelte';
@@ -22,5 +23,22 @@
 	});
 </script>
 
-<Header />
-{@render children()}
+<div class="app-container">
+	<Header />
+	<main>
+		{@render children()}
+	</main>
+	<Footer />
+</div>
+
+<style>
+	.app-container {
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	main {
+		flex: 1;
+	}
+</style>
