@@ -25,4 +25,13 @@
 		flex-direction: column;
 		align-items: start;
 	}
+	.hero-text h1 {
+		font-family: 'Special Gothic Expanded One', monospace;
+	}
+	.hero-text h3 {
+		font-family: 'Special Gothic Expanded One', sans-serif;
+	}
+	.hero-text h4 {
+		font-family: 'Montserrat', sans-serif;
+	}
 </style>
