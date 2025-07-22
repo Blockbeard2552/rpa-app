@@ -22,12 +22,16 @@ interface Order {
 	total: number;
 	user_id: string;
 }
+
+type UserRole = Database['public']['Enums']['app_role'];
+
 export class UserState {
 	session = $state<Session | null>(null);
 	supabase = $state<SupabaseClient<Database> | null>(null);
 	user = $state<User | null>(null);
 	allOrders = $state<Order[]>([]);
 	userName = $state<string | null>(null);
+	userRoles = $state<UserRole[]>([]);
 
 	async fetchUserData() {
 		if (!this.user || !this.supabase) {
@@ -36,24 +40,51 @@ export class UserState {
 
 		const userId = this.user.id;
 
-		const [ordersResponse, userNamesResponse] = await Promise.all([
+		const [ordersResponse, userNamesResponse, userRolesResponse] = await Promise.all([
 			this.supabase.from('orders').select('*').eq('user_id', userId),
-			this.supabase.from('user_names').select('name').eq('user_id', userId).single()
+			this.supabase.from('user_names').select('name').eq('user_id', userId).single(),
+			this.supabase.from('user_roles').select('role').eq('user_id', userId)
 		]);
 
-		if (
-			ordersResponse.error ||
-			!ordersResponse.data ||
-			userNamesResponse.error ||
-			!userNamesResponse.data
-		) {
-			console.log('Error fetching all orders for user');
-			console.log({ ordersError: ordersResponse.error, userNamesError: userNamesResponse.error });
-			return;
+		// Handle orders (optional data)
+		if (ordersResponse.error) {
+			console.log('Error fetching orders for user:', ordersResponse.error);
+			this.allOrders = [];
+		} else {
+			this.allOrders = ordersResponse.data || [];
 		}
 
-		this.allOrders = ordersResponse.data;
-		this.userName = userNamesResponse.data.name;
+		// Handle user name (optional data)
+		if (userNamesResponse.error) {
+			console.log('Error fetching user name:', userNamesResponse.error);
+			// Fallback to email if no user name exists
+			this.userName = this.user.email?.split('@')[0] || 'User';
+		} else {
+			this.userName = userNamesResponse.data?.name || this.user.email?.split('@')[0] || 'User';
+		}
+
+		// Handle user roles (may not exist for all users)
+		if (userRolesResponse.error) {
+			console.log('Error fetching user roles:', userRolesResponse.error);
+			this.userRoles = [];
+		} else if (!userRolesResponse.data || userRolesResponse.data.length === 0) {
+			// No roles assigned to this user - this is normal for regular users
+			this.userRoles = [];
+		} else {
+			this.userRoles = userRolesResponse.data.map((row) => row.role);
+		}
+	}
+
+	get isAdmin() {
+		return this.userRoles.includes('admin');
+	}
+
+	get isModerator() {
+		return this.userRoles.includes('moderator');
+	}
+
+	get hasAdminAccess() {
+		return this.isAdmin || this.isModerator;
 	}
 
 	constructor(data: UserStateProps) {

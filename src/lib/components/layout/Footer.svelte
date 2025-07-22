@@ -1,3 +1,10 @@
+<script lang="ts">
+	import { getUserState } from '$lib/state/user-state.svelte';
+
+	let userContext = getUserState();
+	let { hasAdminAccess } = $derived(userContext);
+</script>
+
 <footer>
 	<div class="footer-content">
 		<div class="footer-section">
@@ -5,7 +12,9 @@
 			<ul>
 				<li><a href="/">Home</a></li>
 				<li><a href="/private/dashboard">Dashboard</a></li>
-				<li><a href="/admin">Admin</a></li>
+				{#if hasAdminAccess}
+					<li><a href="/admin/dashboard">Admin</a></li>
+				{/if}
 			</ul>
 		</div>
 		<div class="footer-section">

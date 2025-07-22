@@ -83,4 +83,38 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = sequence(supabase, authGuard);
+const adminGuard: Handle = async ({ event, resolve }) => {
+	// Only check admin routes
+	if (!event.url.pathname.startsWith('/admin')) {
+		return resolve(event);
+	}
+
+	// Must be authenticated to access admin routes
+	if (!event.locals.session || !event.locals.user) {
+		redirect(303, '/login');
+	}
+
+	// Check user roles
+	const { data: userRoles, error } = await event.locals.supabase
+		.from('user_roles')
+		.select('role')
+		.eq('user_id', event.locals.user.id);
+
+	if (error) {
+		console.error('Error fetching user roles:', error);
+		redirect(303, '/access-denied');
+	}
+
+	// If no roles found, user doesn't have admin access
+	const roles = userRoles?.map((row) => row.role) || [];
+	const hasAdminAccess =
+		roles.length > 0 && (roles.includes('admin') || roles.includes('moderator'));
+
+	if (!hasAdminAccess) {
+		redirect(303, '/access-denied');
+	}
+
+	return resolve(event);
+};
+
+export const handle: Handle = sequence(supabase, authGuard, adminGuard);
