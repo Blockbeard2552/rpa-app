@@ -33,6 +33,18 @@
 			</a>
 		</li>
 		<li>
+			<a href="/admin/orders" title="New Order">
+				<span class="material-symbols-outlined"> orders </span>
+				<span class="nav-label">Orders</span>
+			</a>
+		</li>
+		<li>
+			<a href="/admin/models" title="New Order">
+				<span class="material-symbols-outlined"> rv_hookup </span>
+				<span class="nav-label">Models</span>
+			</a>
+		</li>
+		<li>
 			<a href="/admin/settings" title="Settings">
 				<Settings size={20} />
 				<span class="nav-label">Settings</span>
@@ -97,6 +109,22 @@
 	.admin-side-navigation a:hover {
 		background-color: #e2e8f0;
 		color: #1e293b;
+	}
+
+	.material-symbols-outlined {
+		font-variation-settings:
+			'FILL' 0,
+			'wght' 400,
+			'GRAD' 0,
+			'opsz' 24;
+	}
+
+	.material-symbols-outlined {
+		font-variation-settings:
+			'FILL' 0,
+			'wght' 400,
+			'GRAD' 0,
+			'opsz' 24;
 	}
 
 	.material-symbols-outlined {

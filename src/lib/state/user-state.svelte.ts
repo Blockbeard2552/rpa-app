@@ -42,7 +42,7 @@ export class UserState {
 
 		const [ordersResponse, userNamesResponse, userRolesResponse] = await Promise.all([
 			this.supabase.from('orders').select('*').eq('user_id', userId),
-			this.supabase.from('user_names').select('name').eq('user_id', userId).single(),
+			this.supabase.from('user_names').select('name').eq('user_id', userId).maybeSingle(),
 			this.supabase.from('user_roles').select('role').eq('user_id', userId)
 		]);
 
