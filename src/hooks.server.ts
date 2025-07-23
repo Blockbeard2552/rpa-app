@@ -107,10 +107,21 @@ const adminGuard: Handle = async ({ event, resolve }) => {
 
 	// If no roles found, user doesn't have admin access
 	const roles = userRoles?.map((row) => row.role) || [];
-	const hasAdminAccess =
-		roles.length > 0 && (roles.includes('admin') || roles.includes('moderator'));
+	
+	// Check if route requires admin-only access
+	const adminOnlyRoutes = ['/admin/models', '/admin/users'];
+	const isAdminOnlyRoute = adminOnlyRoutes.some(route => event.url.pathname.startsWith(route));
+	
+	let hasAccess = false;
+	if (isAdminOnlyRoute) {
+		// Admin-only routes: only admins can access
+		hasAccess = roles.includes('admin');
+	} else {
+		// Other admin routes: both admins and moderators can access
+		hasAccess = roles.length > 0 && (roles.includes('admin') || roles.includes('moderator'));
+	}
 
-	if (!hasAdminAccess) {
+	if (!hasAccess) {
 		redirect(303, '/access-denied');
 	}
 
