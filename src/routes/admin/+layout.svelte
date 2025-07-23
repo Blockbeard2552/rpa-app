@@ -10,7 +10,7 @@
 <div class="admin-layout">
 	<AdminSideNavigation />
 	<div class="main-area">
-		<div class="admin-header">
+		<!-- <div class="admin-header">
 			<h1>Admin Dashboard</h1>
 			<div class="user-info">
 				<span class="user-name">{userName}</span>
@@ -22,7 +22,7 @@
 					{/if}
 				</span>
 			</div>
-		</div>
+		</div> -->
 		<div class="content">
 			{@render children()}
 		</div>
