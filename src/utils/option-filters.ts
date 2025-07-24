@@ -1,4 +1,3 @@
-
 import type { Tables } from '../lib/components/types/database.types';
 
 export interface FormattedOption {
@@ -16,8 +15,10 @@ export function filterOptionsForModel(
 		const widthMatch = opt.for_widths === null || opt.for_widths.includes(model.width);
 		const lengthMatch = opt.for_lengths === null || opt.for_lengths.includes(model.length);
 		const axleMatch = opt.for_axle_value === null || opt.for_axle_value === model.axle_value;
-		
-		return widthMatch && lengthMatch && axleMatch;
+		const mainframeMatch =
+			opt.for_mainframe === null || opt.for_mainframe === model.standard_mainframe;
+
+		return widthMatch && lengthMatch && axleMatch && mainframeMatch;
 	});
 }
 
