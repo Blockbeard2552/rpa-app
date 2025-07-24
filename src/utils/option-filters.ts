@@ -1,4 +1,4 @@
-import type { Tables } from '../lib/components/types/database.types';
+import type { Tables } from '../lib/types/database.types';
 
 export interface FormattedOption {
 	value: string;

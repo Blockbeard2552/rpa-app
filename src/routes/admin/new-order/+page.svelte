@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { Tables } from '$components/types/database.types';
+	import type { Tables } from '../../../lib/types/database.types';
 	import SingleSelect from '$components/form/SingleSelect.svelte';
 	import MultiSelect from '$components/form/MultiSelect.svelte';
 	import ModelSelect from '$components/form/ModelSelect.svelte';
@@ -47,6 +47,46 @@
 	$: groupedOptions = groupOptionsByCategory(filteredOptions);
 	$: shippingCost = mileage * perMile;
 
+	function preSelectRecommendedOptions(recommendedOptionIds: number[]) {
+		// Get options that match the recommended IDs and are available for this model
+		const availableRecommendedOptions = filteredOptions.filter((opt) =>
+			recommendedOptionIds.includes(opt.id)
+		);
+
+		availableRecommendedOptions.forEach((option) => {
+			// Find which subcategory this option belongs to
+			const subcategory = data.categories
+				.flatMap((cat: any) => cat.subcategories || [])
+				.find((sub: any) => sub.id === option.subcategory_id);
+
+			if (!subcategory) return;
+
+			const subcategoryId = subcategory.id;
+			const optionId = option.id.toString();
+
+			if (subcategory.multiple) {
+				// For multi-select subcategories, add to array
+				const currentValues = selectedOptions[subcategoryId] || [];
+				const currentArray = Array.isArray(currentValues) ? currentValues : [];
+				if (!currentArray.includes(optionId)) {
+					selectedOptions[subcategoryId] = [...currentArray, optionId];
+				}
+			} else {
+				// For single-select subcategories, set as the value
+				selectedOptions[subcategoryId] = optionId;
+			}
+
+			// Initialize option details if needed
+			if (!optionDetails[optionId]) {
+				optionDetails[optionId] = {};
+				// Set default quantity for quantity-based options
+				if (option.cost_mod === 'Each' || option.cost_mod === 'Per Foot') {
+					optionDetails[optionId].quantity = 1;
+				}
+			}
+		});
+	}
+
 	function handleModelChange(modelId: string) {
 		selectedModelId = modelId;
 		// Reset selected options when model changes
@@ -57,6 +97,14 @@
 		const model = data.models.find((m) => m.id === modelId);
 		if (model && model.dealer_mark_up !== null) {
 			dealerMarkup = model.dealer_mark_up;
+		}
+
+		// Pre-select recommended options if they exist
+		if (model?.recommended_option_ids?.length) {
+			// Need to wait for filteredOptions to be updated first
+			setTimeout(() => {
+				preSelectRecommendedOptions(model.recommended_option_ids);
+			}, 0);
 		}
 	}
 
@@ -1143,7 +1191,7 @@
 
 	.category-group {
 		margin-bottom: 0.25rem;
-		padding-bottom: 1rem;
+
 		border-bottom: 1px solid #f3f4f6;
 	}
 
@@ -1192,7 +1240,6 @@
 	.summary-item-content {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
 	}
 
 	.option-name-line {
@@ -1240,7 +1287,6 @@
 	}
 
 	.option-note {
-		margin-top: 0.25rem;
 		padding-left: 0.5rem;
 	}
 
