@@ -15,7 +15,7 @@
 	let container: HTMLDivElement;
 	let selectedLabel = '';
 
-	$: selectedLabel = options.find(opt => opt.value === value)?.label || placeholder;
+	$: selectedLabel = options.find((opt) => opt.value === value)?.label || placeholder;
 
 	function toggle() {
 		if (!disabled) {
@@ -60,9 +60,9 @@
 		{#if isOpen && !disabled}
 			<div class="dropdown-menu">
 				{#each options as option}
-					<button 
+					<button
 						type="button"
-						class="dropdown-item" 
+						class="dropdown-item"
 						class:selected={option.value === value}
 						on:click={() => selectOption(option.value)}
 					>
@@ -114,7 +114,9 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+		transition:
+			border-color 0.15s ease-in-out,
+			box-shadow 0.15s ease-in-out;
 	}
 
 	.dropdown-toggle:focus {
@@ -150,9 +152,11 @@
 		background-color: white;
 		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 4px 6px -2px rgba(0, 0, 0, 0.05);
 		z-index: 50;
-		max-height: 200px;
+		max-height: 400px;
 		overflow-y: auto;
 	}
 

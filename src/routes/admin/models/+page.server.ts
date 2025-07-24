@@ -2,7 +2,11 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
-	const { data: models, error } = await supabase.from('models').select('*').order('width', { ascending: true }).order('length', { ascending: true });
+	const { data: models, error } = await supabase
+		.from('models')
+		.select('*')
+		.order('width', { ascending: true })
+		.order('length', { ascending: true });
 
 	if (error) {
 		console.error('Error fetching models:', error);

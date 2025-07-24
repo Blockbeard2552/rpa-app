@@ -169,13 +169,13 @@
 			0 10px 15px -3px rgba(0, 0, 0, 0.1),
 			0 4px 6px -2px rgba(0, 0, 0, 0.05);
 		z-index: 50;
-		max-height: 200px;
+		max-height: 400px;
 		overflow-y: auto;
 	}
 
 	.option-item {
 		display: block;
-		padding: 0.1rem 1rem;
+		padding: 0.4rem 1rem; /* Sweet spot between 0.1rem and 0.75rem */
 		cursor: pointer;
 		transition: background-color 0.15s ease-in-out;
 	}
@@ -187,7 +187,7 @@
 	.option-content {
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
+		gap: 0rem; /* Changed from 0.25rem */
 	}
 
 	.option-main {
@@ -214,9 +214,10 @@
 	.option-note {
 		font-size: 0.75rem;
 		color: #6b7280;
-		line-height: 1;
+		line-height: 1.3;
 		font-style: italic;
 		cursor: pointer;
+		margin-top: -0.2rem; /* Pull note text closer */
 	}
 
 	:global(.dropdown-chevron) {

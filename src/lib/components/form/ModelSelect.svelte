@@ -72,7 +72,9 @@
 		font-size: 1rem;
 		line-height: 1.5;
 		color: #111827;
-		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+		transition:
+			border-color 0.15s ease-in-out,
+			box-shadow 0.15s ease-in-out;
 		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	}
 

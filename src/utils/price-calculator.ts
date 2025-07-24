@@ -2,7 +2,6 @@
 
 import type { Tables } from '../lib/types/database.types';
 
-
 export type Option = Tables<'options'>;
 export type Subcategory = Tables<'subcategories'> & { options: Option[] };
 export type Category = Tables<'categories'> & { subcategories: Subcategory[] };
@@ -73,25 +72,25 @@ export function calculateAllPricing(params: PriceCalculationParams): PriceCalcul
 
 	// Calculate porch info
 	const porchInfo = calculatePorchInfo(singleSelections, multipleSelections, quantities);
-	
+
 	// Calculate box length
 	const boxLength = calculateBoxLength(model, porchInfo);
-	
+
 	// Calculate unit cost
 	const unitCost = calculateUnitCost(model, models, porchInfo, dealerMarkup);
-	
+
 	// Get selected options
 	const selectedOptions = getSelectedOptions(singleSelections, multipleSelections, categories);
-	
+
 	// Calculate subtotal
 	const subtotal = calculateSubtotal(model, selectedOptions, quantities, unitCost);
-	
+
 	// Calculate sales tax
 	const salesTax = includeSalesTax ? Math.round(subtotal * salesTaxRate) : 0;
-	
+
 	// Calculate final total
 	const finalTotal = subtotal + salesTax + shippingCost;
-	
+
 	// Calculate deposit amount
 	const depositAmount = Math.round(finalTotal * depositRate);
 
@@ -368,9 +367,7 @@ export function calculateTotalPrice(
 export function findOptionById(id: string, categories: Category[]): Tables<'options'> | undefined {
 	for (const cat of categories) {
 		for (const sub of cat.subcategories) {
-			const option = sub.options.find(
-				(opt: Tables<'options'>) => String(opt.id) === id
-			);
+			const option = sub.options.find((opt: Tables<'options'>) => String(opt.id) === id);
 			if (option) return option;
 		}
 	}

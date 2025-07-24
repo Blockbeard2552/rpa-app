@@ -107,11 +107,11 @@ const adminGuard: Handle = async ({ event, resolve }) => {
 
 	// If no roles found, user doesn't have admin access
 	const roles = userRoles?.map((row) => row.role) || [];
-	
+
 	// Check if route requires admin-only access
 	const adminOnlyRoutes = ['/admin/models', '/admin/users'];
-	const isAdminOnlyRoute = adminOnlyRoutes.some(route => event.url.pathname.startsWith(route));
-	
+	const isAdminOnlyRoute = adminOnlyRoutes.some((route) => event.url.pathname.startsWith(route));
+
 	let hasAccess = false;
 	if (isAdminOnlyRoute) {
 		// Admin-only routes: only admins can access

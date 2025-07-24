@@ -27,7 +27,7 @@
 
 	function handleRoleChange(userId: string, role: string, checked: boolean) {
 		if (!editingValues[userId]) return;
-		
+
 		const roles = editingValues[userId].roles;
 		if (checked && !roles.includes(role)) {
 			roles.push(role);
@@ -60,7 +60,9 @@
 	}
 
 	function confirmDelete(user: any): boolean {
-		return confirm(`Are you sure you want to delete ${user.name || user.email}? This action cannot be undone.`);
+		return confirm(
+			`Are you sure you want to delete ${user.name || user.email}? This action cannot be undone.`
+		);
 	}
 </script>
 
@@ -149,7 +151,7 @@
 									{#each editingValues[user.id].roles as role}
 										<input type="hidden" name="roles" value={role} />
 									{/each}
-									
+
 									<div class="action-buttons">
 										<button type="submit" class="save-btn">Save</button>
 										<button type="button" class="cancel-btn" onclick={() => cancelEditing(user.id)}>
@@ -173,7 +175,9 @@
 													await invalidateAll();
 												} else if (result.type === 'failure') {
 													console.error('Delete failed:', result.data);
-													alert('Failed to delete user: ' + (result.data?.error || 'Unknown error'));
+													alert(
+														'Failed to delete user: ' + (result.data?.error || 'Unknown error')
+													);
 												}
 											};
 										}}
@@ -346,7 +350,7 @@
 		cursor: pointer;
 	}
 
-	.role-checkbox input[type="checkbox"] {
+	.role-checkbox input[type='checkbox'] {
 		width: 1rem;
 		height: 1rem;
 	}

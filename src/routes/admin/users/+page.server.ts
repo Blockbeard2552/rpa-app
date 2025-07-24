@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 		const userMap = new Map();
 
 		// Add users from user_names
-		userNames?.forEach(un => {
+		userNames?.forEach((un) => {
 			if (!userMap.has(un.user_id)) {
 				userMap.set(un.user_id, {
 					id: un.user_id,
@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 		});
 
 		// Add roles
-		userRoles?.forEach(ur => {
+		userRoles?.forEach((ur) => {
 			if (userMap.has(ur.user_id)) {
 				userMap.get(ur.user_id).roles.push(ur.role);
 			} else {
@@ -55,8 +55,8 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 			}
 		});
 
-		const users = Array.from(userMap.values()).sort((a, b) => 
-			new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+		const users = Array.from(userMap.values()).sort(
+			(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 		);
 
 		return {
@@ -87,35 +87,33 @@ export const actions: Actions = {
 			]);
 
 			const currentName = currentNameResponse.data?.name || '';
-			const currentRoles = currentRolesResponse.data?.map(r => r.role) || [];
+			const currentRoles = currentRolesResponse.data?.map((r) => r.role) || [];
 
 			// Check if name changed
 			const nameChanged = name !== currentName;
-			
+
 			// Check if roles changed (compare sorted arrays)
 			const sortedNewRoles = [...roles].sort();
 			const sortedCurrentRoles = [...currentRoles].sort();
 			const rolesChanged = JSON.stringify(sortedNewRoles) !== JSON.stringify(sortedCurrentRoles);
 
-			console.log('Data comparison:', { 
-				nameChanged, 
-				rolesChanged, 
-				currentName, 
-				newName: name, 
-				currentRoles, 
-				newRoles: roles 
+			console.log('Data comparison:', {
+				nameChanged,
+				rolesChanged,
+				currentName,
+				newName: name,
+				currentRoles,
+				newRoles: roles
 			});
 
 			// Update name only if changed
 			if (nameChanged) {
 				if (name && name.trim() !== '') {
 					// Insert or update name
-					const { error: nameError } = await supabase
-						.from('user_names')
-						.upsert({
-							user_id: userId,
-							name: name.trim()
-						});
+					const { error: nameError } = await supabase.from('user_names').upsert({
+						user_id: userId,
+						name: name.trim()
+					});
 
 					if (nameError) {
 						console.error('Error updating user name:', nameError);
@@ -156,14 +154,12 @@ export const actions: Actions = {
 
 				// Insert new roles if any
 				if (roles.length > 0) {
-					const roleInserts = roles.map(role => ({
+					const roleInserts = roles.map((role) => ({
 						user_id: userId,
 						role: role
 					}));
 
-					const { error: insertRolesError } = await supabase
-						.from('user_roles')
-						.insert(roleInserts);
+					const { error: insertRolesError } = await supabase.from('user_roles').insert(roleInserts);
 
 					if (insertRolesError) {
 						console.error('Error inserting user roles:', insertRolesError);
@@ -174,9 +170,10 @@ export const actions: Actions = {
 				}
 			}
 
-			const message = (!nameChanged && !rolesChanged) 
-				? 'No changes detected - data already up to date'
-				: 'User updated successfully';
+			const message =
+				!nameChanged && !rolesChanged
+					? 'No changes detected - data already up to date'
+					: 'User updated successfully';
 
 			return {
 				success: true,
@@ -199,14 +196,14 @@ export const actions: Actions = {
 		try {
 			// Delete user roles
 			await supabase.from('user_roles').delete().eq('user_id', userId);
-			
+
 			// Delete user names
 			await supabase.from('user_names').delete().eq('user_id', userId);
-			
+
 			// Note: We can't delete from auth.users directly through the client
 			// This would need to be done via Supabase Admin API or database functions
 			// For now, we'll just remove the user's data
-			
+
 			return {
 				success: true,
 				message: 'User data removed successfully'

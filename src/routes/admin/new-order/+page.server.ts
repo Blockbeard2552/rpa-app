@@ -11,10 +11,12 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 	// Fetch all categories with subcategories
 	const { data: categories, error: categoriesError } = await supabase
 		.from('categories')
-		.select(`
+		.select(
+			`
 			*,
 			subcategories (*)
-		`)
+		`
+		)
 		.order('name');
 
 	// Fetch all options
