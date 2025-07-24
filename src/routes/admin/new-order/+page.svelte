@@ -910,12 +910,12 @@
 	.order-form {
 		display: flex;
 		flex-direction: column;
-		gap: 2rem;
+		gap: 1rem;
 	}
 
 	.form-section {
 		background: white;
-		padding: 1.5rem;
+		padding: 0.5rem;
 		border-radius: 0.5rem;
 		border: 1px solid #e5e7eb;
 	}
@@ -1142,7 +1142,7 @@
 	}
 
 	.category-group {
-		margin-bottom: 1.5rem;
+		margin-bottom: 0.25rem;
 		padding-bottom: 1rem;
 		border-bottom: 1px solid #f3f4f6;
 	}

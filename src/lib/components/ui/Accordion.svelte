@@ -13,10 +13,7 @@
 <div class="accordion">
 	<button class="accordion-header" on:click={toggle} type="button">
 		<span class="accordion-title">{title}</span>
-		<ChevronDown 
-			size={20} 
-			class="accordion-chevron {isOpen ? 'rotated' : ''}"
-		/>
+		<ChevronDown size={20} class="accordion-chevron {isOpen ? 'rotated' : ''}" />
 	</button>
 	{#if isOpen}
 		<div class="accordion-content" transition:slide={{ duration: 200 }}>
@@ -35,7 +32,7 @@
 
 	.accordion-header {
 		width: 100%;
-		padding: 1rem 1.25rem;
+		padding: 0.75rem 1.25rem;
 		background-color: #f9fafb;
 		border: none;
 		display: flex;
@@ -52,7 +49,7 @@
 	.accordion-title {
 		font-weight: 600;
 		color: #374151;
-		font-size: 1rem;
+		font-size: 0.75rem;
 		text-align: left;
 	}
 

@@ -15,9 +15,10 @@
 	let container: HTMLDivElement;
 	let displayText = '';
 
-	$: displayText = values.length === 0 
-		? placeholder 
-		: `${values.length} option${values.length === 1 ? '' : 's'} selected`;
+	$: displayText =
+		values.length === 0
+			? placeholder
+			: `${values.length} option${values.length === 1 ? '' : 's'} selected`;
 
 	function toggle() {
 		if (!disabled) {
@@ -29,7 +30,7 @@
 		if (checked) {
 			values = [...values, optionValue];
 		} else {
-			values = values.filter(v => v !== optionValue);
+			values = values.filter((v) => v !== optionValue);
 		}
 		dispatch('change', values);
 	}
@@ -70,14 +71,16 @@
 			<div class="dropdown-menu">
 				{#each options as option}
 					<label class="option-item">
-						<input
-							type="checkbox"
-							value={option.value}
-							checked={isChecked(option.value)}
-							on:change={(e) => handleChange(option.value, e.currentTarget.checked)}
-						/>
 						<div class="option-content">
-							<span class="option-label">{option.label}</span>
+							<div class="option-main">
+								<input
+									type="checkbox"
+									value={option.value}
+									checked={isChecked(option.value)}
+									on:change={(e) => handleChange(option.value, e.currentTarget.checked)}
+								/>
+								<span class="option-label">{option.label}</span>
+							</div>
 							{#if option.note}
 								<span class="option-note">{option.note}</span>
 							{/if}
@@ -113,7 +116,7 @@
 
 	.dropdown-toggle {
 		width: 100%;
-		padding: 0.75rem 1rem;
+		padding: 0.75rem 0.5rem;
 		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
 		background-color: white;
@@ -124,7 +127,9 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+		transition:
+			border-color 0.15s ease-in-out,
+			box-shadow 0.15s ease-in-out;
 	}
 
 	.dropdown-toggle:focus {
@@ -160,17 +165,17 @@
 		background-color: white;
 		border: 1px solid #d1d5db;
 		border-radius: 0.375rem;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 4px 6px -2px rgba(0, 0, 0, 0.05);
 		z-index: 50;
 		max-height: 200px;
 		overflow-y: auto;
 	}
 
 	.option-item {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.75rem;
-		padding: 0.75rem 1rem;
+		display: block;
+		padding: 0.1rem 1rem;
 		cursor: pointer;
 		transition: background-color 0.15s ease-in-out;
 	}
@@ -179,33 +184,37 @@
 		background-color: #f3f4f6;
 	}
 
-	.option-item input[type="checkbox"] {
-		margin: 0;
-		cursor: pointer;
-		width: 1rem;
-		height: 1rem;
-		margin-top: 0.125rem;
-		flex-shrink: 0;
-	}
-
 	.option-content {
-		flex: 1;
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
+	}
+
+	.option-main {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.option-main input[type='checkbox'] {
+		margin: 0;
+		cursor: pointer;
+		width: 1rem;
+		height: 0.5rem;
+		flex-shrink: 0;
 	}
 
 	.option-label {
 		font-size: 0.875rem;
 		color: #374151;
 		cursor: pointer;
-		line-height: 1.4;
+		line-height: 1.5;
 	}
 
 	.option-note {
 		font-size: 0.75rem;
 		color: #6b7280;
-		line-height: 1.3;
+		line-height: 1;
 		font-style: italic;
 		cursor: pointer;
 	}
