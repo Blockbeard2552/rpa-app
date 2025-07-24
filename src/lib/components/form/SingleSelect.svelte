@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { ChevronDown } from '@lucide/svelte';
 
-	export let options: Array<{ value: string; label: string; note?: string | null }> = [];
+	export let options: Array<{ value: string; label: string; note?: string | null; disabled?: boolean }> = [];
 	export let value: string = '';
 	export let placeholder: string = 'Select an option';
 	export let label: string = '';
@@ -23,7 +23,8 @@
 		}
 	}
 
-	function selectOption(optionValue: string) {
+	function selectOption(optionValue: string, optionDisabled: boolean = false) {
+		if (optionDisabled) return;
 		value = optionValue;
 		isOpen = false;
 		dispatch('change', value);
@@ -64,7 +65,9 @@
 						type="button"
 						class="dropdown-item"
 						class:selected={option.value === value}
-						on:click={() => selectOption(option.value)}
+						class:disabled={option.disabled}
+						disabled={option.disabled}
+						on:click={() => selectOption(option.value, option.disabled)}
 					>
 						<div class="option-content">
 							<span class="option-label">{option.label}</span>
@@ -198,6 +201,16 @@
 	.dropdown-item.selected {
 		background-color: #3b82f6;
 		color: white;
+	}
+
+	.dropdown-item.disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		background-color: #f9fafb;
+	}
+
+	.dropdown-item.disabled:hover {
+		background-color: #f9fafb;
 	}
 
 	:global(.dropdown-chevron) {

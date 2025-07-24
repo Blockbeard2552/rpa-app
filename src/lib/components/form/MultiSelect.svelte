@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { ChevronDown } from '@lucide/svelte';
 
-	export let options: Array<{ value: string; label: string; note?: string | null }> = [];
+	export let options: Array<{ value: string; label: string; note?: string | null; disabled?: boolean }> = [];
 	export let values: string[] = [];
 	export let placeholder: string = 'Select options';
 	export let label: string = '';
@@ -26,7 +26,8 @@
 		}
 	}
 
-	function handleChange(optionValue: string, checked: boolean) {
+	function handleChange(optionValue: string, checked: boolean, optionDisabled: boolean = false) {
+		if (optionDisabled) return;
 		if (checked) {
 			values = [...values, optionValue];
 		} else {
@@ -70,14 +71,15 @@
 		{#if isOpen && !disabled}
 			<div class="dropdown-menu">
 				{#each options as option}
-					<label class="option-item">
+					<label class="option-item" class:disabled={option.disabled}>
 						<div class="option-content">
 							<div class="option-main">
 								<input
 									type="checkbox"
 									value={option.value}
 									checked={isChecked(option.value)}
-									on:change={(e) => handleChange(option.value, e.currentTarget.checked)}
+									disabled={option.disabled}
+									on:change={(e) => handleChange(option.value, e.currentTarget.checked, option.disabled)}
 								/>
 								<span class="option-label">{option.label}</span>
 							</div>
@@ -182,6 +184,28 @@
 
 	.option-item:hover {
 		background-color: #f3f4f6;
+	}
+
+	.option-item.disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		background-color: #f9fafb;
+	}
+
+	.option-item.disabled:hover {
+		background-color: #f9fafb;
+	}
+
+	.option-item.disabled input[type='checkbox'] {
+		cursor: not-allowed;
+	}
+
+	.option-item.disabled .option-label {
+		cursor: not-allowed;
+	}
+
+	.option-item.disabled .option-note {
+		cursor: not-allowed;
 	}
 
 	.option-content {

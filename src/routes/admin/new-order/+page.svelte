@@ -85,6 +85,9 @@
 				}
 			}
 		});
+
+		// Also handle required options for the recommended options themselves
+		addRequiredOptions(recommendedOptionIds.map((id: number) => id.toString()));
 	}
 
 	function handleModelChange(modelId: string) {
@@ -108,6 +111,103 @@
 		}
 	}
 
+	function addRequiredOptions(optionIds: string[]) {
+		optionIds.forEach((optionId) => {
+			const option = filteredOptions.find((opt) => opt.id.toString() === optionId);
+			if (!option || !option.must_include) return;
+
+			const requiredOptionId = option.must_include.toString();
+			const requiredOption = filteredOptions.find((opt) => opt.id.toString() === requiredOptionId);
+			
+			if (!requiredOption) return;
+
+			// Find the subcategory for the required option
+			const requiredSubcategory = data.categories
+				.flatMap((cat: any) => cat.subcategories || [])
+				.find((sub: any) => sub.id === requiredOption.subcategory_id);
+
+			if (!requiredSubcategory) return;
+
+			const requiredSubcategoryId = requiredSubcategory.id;
+
+			// Add the required option to the appropriate subcategory
+			if (requiredSubcategory.multiple) {
+				// For multi-select subcategories
+				const currentValues = selectedOptions[requiredSubcategoryId] || [];
+				const currentArray = Array.isArray(currentValues) ? currentValues : [];
+				if (!currentArray.includes(requiredOptionId)) {
+					selectedOptions[requiredSubcategoryId] = [...currentArray, requiredOptionId];
+				}
+			} else {
+				// For single-select subcategories
+				selectedOptions[requiredSubcategoryId] = requiredOptionId;
+			}
+
+			// Initialize option details if needed
+			if (!optionDetails[requiredOptionId]) {
+				optionDetails[requiredOptionId] = {};
+				if (requiredOption.cost_mod === 'Each' || requiredOption.cost_mod === 'Per Foot') {
+					optionDetails[requiredOptionId].quantity = 1;
+				}
+			}
+
+			// Recursively add any options that this required option might need
+			addRequiredOptions([requiredOptionId]);
+		});
+
+	}
+
+	function removeRequiredOptions(removedOptionIds: string[]) {
+		// Find all options that require any of the removed options
+		const allSelectedOptionIds = Object.values(selectedOptions)
+			.flatMap((value) => Array.isArray(value) ? value : [value])
+			.filter((v) => v !== '');
+
+		removedOptionIds.forEach((removedOptionId) => {
+			// Check if any currently selected option requires this removed option
+			const hasDependent = allSelectedOptionIds.some((selectedId) => {
+				const selectedOption = filteredOptions.find((opt) => opt.id.toString() === selectedId);
+				return selectedOption?.must_include?.toString() === removedOptionId;
+			});
+
+			// If no other option requires this option, we can remove it
+			if (!hasDependent) {
+				// Find and remove from subcategories
+				Object.entries(selectedOptions).forEach(([subcategoryId, values]) => {
+					if (Array.isArray(values)) {
+						const filtered = values.filter((v) => v !== removedOptionId);
+						if (filtered.length !== values.length) {
+							selectedOptions[subcategoryId] = filtered;
+						}
+					} else if (values === removedOptionId) {
+						selectedOptions[subcategoryId] = '';
+					}
+				});
+
+				// Remove from option details
+				delete optionDetails[removedOptionId];
+
+				// Recursively check if this removal allows us to remove other required options
+				const requiredOption = filteredOptions.find((opt) => opt.id.toString() === removedOptionId);
+				if (requiredOption?.must_include) {
+					removeRequiredOptions([requiredOption.must_include.toString()]);
+				}
+			}
+		});
+	}
+
+	function isOptionRequired(optionId: string): boolean {
+		// Check if any currently selected option requires this option
+		const allSelectedOptionIds = Object.values(selectedOptions)
+			.flatMap((value) => Array.isArray(value) ? value : [value])
+			.filter((v) => v !== '' && v !== optionId); // Exclude the option itself
+
+		return allSelectedOptionIds.some((selectedId) => {
+			const selectedOption = filteredOptions.find((opt) => opt.id.toString() === selectedId);
+			return selectedOption?.must_include?.toString() === optionId;
+		});
+	}
+
 	function handleOptionChange(subcategoryId: string, value: string | string[]) {
 		selectedOptions[subcategoryId] = value;
 
@@ -128,6 +228,11 @@
 			.map((opt) => opt.id.toString())
 			.filter((optionId) => optionDetails[optionId]);
 
+		// Find options that were removed in this change
+		const removedOptionIds = previouslySelectedForSubcategory.filter(
+			(optionId) => !currentOptionIds.includes(optionId)
+		);
+
 		// Remove details only for options from this subcategory that are no longer selected
 		previouslySelectedForSubcategory.forEach((optionId) => {
 			if (!currentOptionIds.includes(optionId)) {
@@ -147,6 +252,19 @@
 				}
 			}
 		});
+
+		// Handle required options for newly selected options
+		const newlySelectedOptions = currentOptionIds.filter(
+			(optionId) => !previouslySelectedForSubcategory.includes(optionId)
+		);
+		if (newlySelectedOptions.length > 0) {
+			addRequiredOptions(newlySelectedOptions);
+		}
+
+		// Handle removal of required options when their dependent options are removed
+		if (removedOptionIds.length > 0) {
+			removeRequiredOptions(removedOptionIds);
+		}
 	}
 
 	function handleOptionDetailChange(optionId: string, field: string, value: string | number) {
@@ -393,11 +511,15 @@
 								{#each Object.entries(categoryData.subcategories) as [subcategoryId, subcategoryData]}
 									<div class="subcategory-group">
 										{#if subcategoryData.options.length > 0}
-											{@const optionsList = subcategoryData.options.map((opt) => ({
-												value: opt.id.toString(),
-												label: `${opt.name} (+$${parseFloat(opt.cost || '0').toLocaleString()})`,
-												note: opt.note
-											}))}
+											{@const optionsList = subcategoryData.options.map((opt) => {
+												const isRequired = isOptionRequired(opt.id.toString());
+												return {
+													value: opt.id.toString(),
+													label: `${opt.name} ${isRequired ? '(Required)' : ''} (+$${parseFloat(opt.cost || '0').toLocaleString()})`,
+													note: opt.note,
+													disabled: isRequired
+												};
+											})}
 
 											{#if subcategoryData.subcategory.multiple}
 												<MultiSelect
